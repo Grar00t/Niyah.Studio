@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://niyah.local/contracts/engine-event.schema.json",
+  "title": "Niyah Studio Engine Event",
+  "type": "object",
+  "required": ["schema_version", "run_id", "sequence", "timestamp", "kind"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "run_id": { "type": "string", "minLength": 1 },
+    "sequence": { "type": "integer", "minimum": 0 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "kind": { "enum": ["PROCESS_STARTED", "STDOUT", "STDERR", "METRIC", "PROCESS_EXITED", "ARTIFACT"] },
+    "payload": { "type": "object" }
+  },
+  "additionalProperties": false
+}

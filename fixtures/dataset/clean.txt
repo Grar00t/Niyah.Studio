@@ -1,0 +1,7 @@
+User: What is 2+2?
+Assistant: 4
+
+User: What is the capital of Saudi Arabia?
+Assistant: Riyadh
+
+مرحبا بالعالم

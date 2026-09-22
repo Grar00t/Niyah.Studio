@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Run Receipt",
+  "type": "object",
+  "required": ["schema_version", "receipt_id", "operation", "status", "started_at"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "receipt_id": { "type": "string" },
+    "operation": { "type": "string" },
+    "status": { "enum": ["NOT_RUN", "RUNNING", "PASS", "FAIL", "ABORTED", "UNSUPPORTED", "STALE"] },
+    "started_at": { "type": "string", "format": "date-time" },
+    "completed_at": { "type": ["string", "null"], "format": "date-time" },
+    "engine_commit": { "type": ["string", "null"] },
+    "executable_sha256": { "type": ["string", "null"] },
+    "input_sha256": { "type": "array", "items": { "type": "string" } },
+    "output_sha256": { "type": "array", "items": { "type": "string" } },
+    "exit_code": { "type": ["integer", "null"] },
+    "detail": { "type": "string" }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Dataset Manifest",
+  "type": "object",
+  "required": ["schema_version", "source_sha256", "record_count", "transformations", "outputs"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "source_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "record_count": { "type": "integer", "minimum": 0 },
+    "transformations": { "type": "array", "items": { "type": "string" } },
+    "split_seed": { "type": ["string", "null"] },
+    "outputs": { "type": "object", "additionalProperties": { "type": "string", "pattern": "^[a-f0-9]{64}$" } }
+  },
+  "additionalProperties": false
+}

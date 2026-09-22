@@ -4,6 +4,9 @@
   "commit": null,
   "release": null,
   "platform": null,
-  "artifact_path": null,
-  "artifact_sha256": null
+  "artifacts": {
+    "niyah": { "path": null, "sha256": null },
+    "niyah-train": { "path": null, "sha256": null },
+    "niyah_probe": { "path": null, "sha256": null }
+  }
 }

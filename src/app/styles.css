@@ -52,3 +52,51 @@ button { color: inherit; }
 .graph-wrap { position: relative; border: 1px solid #2f283b; background: radial-gradient(circle at center, rgba(114,80,218,.12), transparent 48%), #0b0a10; border-radius: 13px; min-height: 520px; overflow: hidden; }.graph-wrap svg { width: 100%; height: 520px; }.graph-edge { stroke: #463a5d; stroke-opacity: .52; stroke-width: 1; }.graph-node { cursor: pointer; outline: none; }.graph-node circle { stroke-width: 1.2; stroke: #9c86c8; fill: #403254; }.graph-node text { fill: #9b91aa; font-size: 9px; pointer-events: none; }.node-studio { fill: #8a63ff !important; stroke: #d6c9ff !important; }.node-engine { fill: #352751 !important; }.node-dataset { fill: #5f4096 !important; }.node-record { fill: #2e2937 !important; stroke: #6c6079 !important; }.node-evidence { fill: #4d386d !important; }.node-active { stroke: #fff !important; stroke-width: 2 !important; }.graph-detail { position: absolute; left: 12px; bottom: 12px; min-width: 260px; max-width: 60%; padding: 10px 12px; border-radius: 8px; background: rgba(17,15,23,.9); border: 1px solid #332a43; backdrop-filter: blur(12px); display: grid; gap: 4px; font-size: 11px; }.graph-detail span { color: #8f879b; }
 @media (max-width: 1100px) { .app-shell { grid-template-columns: 74px minmax(0,1fr); }.sidebar { padding: 14px 8px; }.sidebar .brand div:last-child, .sidebar button span, .local-badge, .inspector { display: none; }.sidebar .brand { justify-content: center; }.new-chat, .sidebar nav button, .sidebar-bottom button { justify-content: center; }.purple-dot { position: absolute; margin: 0 0 0 25px; }.metric-grid { grid-template-columns: repeat(2,1fr); } }
 @media (max-width: 640px) { .app-shell { grid-template-columns: 1fr; }.sidebar { display: none; }.content { padding: 18px 14px; }.topbar { padding: 0 12px; }.top-actions button { display:none; }.metric-grid { grid-template-columns: 1fr 1fr; }.card-head { display:block; }.card-head code { display:block; margin-top:6px; }.data-card { overflow-x:auto; } }
+
+.control-strip { display: grid; grid-template-columns: minmax(180px,1fr) auto minmax(160px,.7fr) auto; gap: 8px; align-items: end; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: #111016; }
+.control-strip label { display: grid; gap: 6px; color: #817a8d; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
+.control-strip input { height: 34px; border: 1px solid #342e3e; border-radius: 7px; background: #0f0e13; color: var(--text); padding: 0 9px; outline: none; }
+.control-strip input:focus { border-color: #66528e; box-shadow: 0 0 0 2px rgba(157,124,255,.08); }
+.control-strip button, .native-contract-panel button, .graph-toolbar button, .graph-kind-filter button { min-height: 34px; border: 1px solid #342e3e; border-radius: 7px; background: #17141e; color: #bbb4c8; padding: 0 10px; cursor: pointer; }
+.control-strip button:hover, .graph-toolbar button:hover, .graph-kind-filter button:hover { border-color: #55446f; color: var(--text); }
+.dataset-summary-row { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; }
+.dataset-summary-row > div { border: 1px solid var(--line); border-radius: 9px; background: #111016; padding: 10px 12px; display: grid; gap: 5px; }
+.dataset-summary-row span { color: #797280; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
+.dataset-summary-row strong { font-size: 12px; }
+.inline-empty { padding: 20px 15px; color: #857e8f; font-size: 12px; }
+.manifest-block { border: 1px solid var(--line); border-radius: 10px; background: #111016; overflow: hidden; }
+.manifest-block summary { cursor: pointer; padding: 12px 14px; color: #bcb5c6; font-size: 12px; }
+.manifest-block pre { margin: 0; padding: 14px; border-top: 1px solid var(--line); max-height: 360px; overflow: auto; color: #9d94aa; font-size: 10px; background: #0c0b10; }
+
+.native-contract-grid { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(0,.85fr); gap: 12px; }
+.native-contract-panel { border: 1px solid var(--line); background: #111016; border-radius: 11px; padding: 16px; }
+.native-contract-heading { display: flex; align-items: center; gap: 10px; color: var(--purple); }
+.native-contract-heading > div { display: grid; gap: 2px; }
+.native-contract-heading strong { color: var(--text); font-size: 13px; }
+.native-contract-heading span { color: #776f81; font-size: 10px; }
+.native-contract-panel p { color: #9991a4; font-size: 12px; line-height: 1.55; }
+.native-contract-panel h4 { margin: 17px 0 8px; font-size: 11px; color: #c9c2d2; }
+.native-contract-panel ul { margin: 0; padding-left: 18px; display: grid; gap: 7px; color: #8f879b; font-size: 11px; line-height: 1.45; }
+.engine-gate { margin-top: 18px; border-radius: 8px; padding: 10px; display: flex; align-items: flex-start; gap: 7px; font-size: 11px; line-height: 1.4; }
+.engine-gate.offline { border: 1px solid #45355f; background: rgba(157,124,255,.08); color: #bba9df; }
+.engine-gate.online { border: 1px solid #295241; background: rgba(91,209,154,.06); color: #8fd8b7; }
+.native-contract-panel button { margin-top: 10px; width: 100%; }
+.native-contract-panel button:disabled { opacity: .45; cursor: not-allowed; }
+
+.graph-toolbar { position: absolute; z-index: 2; left: 12px; top: 12px; right: 12px; display: grid; grid-template-columns: minmax(180px,1fr) auto auto; gap: 8px; align-items: center; }
+.graph-toolbar input { min-height: 34px; border: 1px solid #342e3e; border-radius: 7px; background: rgba(14,12,18,.92); color: var(--text); padding: 0 10px; outline: none; backdrop-filter: blur(10px); }
+.graph-toolbar span { color: #7f778a; font-size: 10px; text-align: right; }
+.graph-kind-filter { position: absolute; z-index: 2; left: 12px; right: 12px; top: 56px; display: flex; gap: 5px; flex-wrap: wrap; pointer-events: auto; }
+.graph-kind-filter button { min-height: 25px; padding: 0 7px; font-size: 9px; color: #6f6878; background: rgba(14,12,18,.82); }
+.graph-kind-filter button.on { color: #c9baff; border-color: #5b477f; background: rgba(111,77,233,.12); }
+.graph-wrap svg { touch-action: none; cursor: grab; }
+.graph-wrap svg:active { cursor: grabbing; }
+.node-inference { fill: #6745a8 !important; stroke: #c4adff !important; }
+.node-training_run, .node-checkpoint, .node-evaluation, .node-tokenizer, .node-shard, .node-conversation { fill: #46335e !important; }
+.graph-detail code { color: #bdaaf4; font-size: 10px; }
+
+@media (max-width: 880px) {
+  .control-strip { grid-template-columns: 1fr 1fr; }
+  .dataset-summary-row { grid-template-columns: 1fr 1fr; }
+  .native-contract-grid { grid-template-columns: 1fr; }
+}

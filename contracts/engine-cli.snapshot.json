@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "source_repository": "Grar00t/Niyah.Engine",
+  "source_commit": "b80050086d6c8476650cda0d4529c3fd0dd5b8c1",
+  "captured_at": "2026-09-22",
+  "evidence_scope": "repository-source contract snapshot; not runtime reproduction",
+  "commands": {
+    "niyah": {
+      "prepare": {
+        "required": ["--corpus", "--tokenizer-out", "--shard-out", "--target-vocab", "--min-pair-frequency", "--sequence-length"],
+        "optional": ["--record-mode stream|blank-line", "--response-delimiter TEXT"]
+      },
+      "shard": {
+        "required": ["--tokenizer", "--corpus", "--shard-out", "--sequence-length"],
+        "optional": ["--record-mode stream|blank-line", "--response-delimiter TEXT"]
+      },
+      "eval": {
+        "required": ["--tokenizer", "--checkpoint", "--heldout"],
+        "optional": ["--format text|shard", "--sequence-length"]
+      },
+      "run": {
+        "required": ["--tokenizer", "--checkpoint", "--prompt", "--max-new-tokens"],
+        "optional": ["--temperature", "--seed", "--backend cpu|cuda"]
+      }
+    },
+    "niyah-train": {
+      "new": {
+        "required": [
+          "--tokenizer", "--shard", "--checkpoint-out", "--cursor-out",
+          "--updates", "--batch-size", "--accumulation-steps",
+          "--model-seed", "--data-seed", "--context-length", "--embedding-dim",
+          "--layers", "--heads", "--kv-heads", "--ffn-hidden-dim",
+          "--rms-norm-eps", "--tie-word-embeddings",
+          "--learning-rate", "--beta1", "--beta2", "--epsilon",
+          "--weight-decay", "--max-grad-norm"
+        ],
+        "repeatable": ["--shard"],
+        "progress_stderr_contract": "update=I/N loss=L"
+      },
+      "resume": {
+        "required": [
+          "--tokenizer", "--shard", "--checkpoint-in", "--cursor-in",
+          "--checkpoint-out", "--cursor-out", "--updates", "--batch-size",
+          "--accumulation-steps"
+        ],
+        "repeatable": ["--shard"]
+      }
+    },
+    "niyah_probe": {
+      "required": ["--tokenizer"],
+      "optional": ["--shard", "--checkpoint", "--prompt", "--topk", "--trace-steps"]
+    }
+  }
+}

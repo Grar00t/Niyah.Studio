@@ -1,3 +1,4 @@
+import { invoke } from '@tauri-apps/api/core';
 import type {
   EngineAdapter,
   EngineCapabilities,
@@ -12,28 +13,18 @@ import type {
   TrainingResumeRequest,
 } from './EngineAdapter';
 
-const OFFLINE = 'ENGINE_OFFLINE: native Niyah.Engine execution is unavailable in this environment.';
+const NOT_WIRED = 'UNSUPPORTED: native operation is intentionally not wired in the scaffold. Pin and inspect Niyah.Engine before implementing it.';
+const unsupported = (): NativeResult => ({ status: 'UNSUPPORTED', stdout: '', stderr: NOT_WIRED, exitCode: null });
 
-function unsupported(detail = OFFLINE): NativeResult {
-  return { status: 'UNSUPPORTED', stdout: '', stderr: detail, exitCode: null };
-}
-
-export class OfflineEngineAdapter implements EngineAdapter {
-  readonly kind = 'offline' as const;
+export class TauriEngineAdapter implements EngineAdapter {
+  readonly kind = 'tauri' as const;
 
   async getIdentity(): Promise<EngineIdentity> {
-    return {
-      status: 'ENGINE_OFFLINE',
-      repository: 'Grar00t/Niyah.Engine',
-      commit: null,
-      executableSha256: null,
-      backend: null,
-      detail: 'Native bridge is unavailable in browser/AI Studio preview.',
-    };
+    return invoke<EngineIdentity>('engine_status');
   }
 
   async getCapabilities(): Promise<EngineCapabilities> {
-    return { prepare: false, shard: false, training: false, evaluation: false, inference: false, probe: false, cancellation: false };
+    return invoke<EngineCapabilities>('engine_capabilities');
   }
 
   async prepareDataset(_request: PrepareDatasetRequest): Promise<NativeResult> { return unsupported(); }
@@ -43,5 +34,5 @@ export class OfflineEngineAdapter implements EngineAdapter {
   async evaluate(_request: EvaluationRequest): Promise<NativeResult> { return unsupported(); }
   async runInference(_request: InferenceRequest): Promise<NativeResult> { return unsupported(); }
   async probe(_request: ProbeRequest): Promise<NativeResult> { return unsupported(); }
-  async cancelActiveRun(): Promise<NativeResult> { return unsupported('ENGINE_OFFLINE: there is no native process to cancel.'); }
+  async cancelActiveRun(): Promise<NativeResult> { return unsupported(); }
 }

@@ -1,10 +1,15 @@
 import type { EngineAdapter } from './EngineAdapter';
 import { OfflineEngineAdapter } from './OfflineEngineAdapter';
+import { TauriEngineAdapter } from './TauriEngineAdapter';
 
 let adapter: EngineAdapter | null = null;
 
+function isTauriRuntime(): boolean {
+  return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+}
+
 export function getEngineAdapter(): EngineAdapter {
-  if (!adapter) adapter = new OfflineEngineAdapter();
+  if (!adapter) adapter = isTauriRuntime() ? new TauriEngineAdapter() : new OfflineEngineAdapter();
   return adapter;
 }
 

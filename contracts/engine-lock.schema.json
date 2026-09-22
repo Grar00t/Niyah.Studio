@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Niyah Engine Lock",
+  "type": "object",
+  "required": ["schema_version", "repository", "commit", "release", "platform", "artifacts"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "repository": { "const": "Grar00t/Niyah.Engine" },
+    "commit": { "type": ["string", "null"], "pattern": "^[a-f0-9]{40}$" },
+    "release": { "type": ["string", "null"] },
+    "platform": { "type": ["string", "null"] },
+    "artifacts": {
+      "type": "object",
+      "required": ["niyah", "niyah-train", "niyah_probe"],
+      "properties": {
+        "niyah": { "$ref": "#/$defs/artifact" },
+        "niyah-train": { "$ref": "#/$defs/artifact" },
+        "niyah_probe": { "$ref": "#/$defs/artifact" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "artifact": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "type": ["string", "null"] },
+        "sha256": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -14,7 +14,14 @@ const forbidden = [
 ];
 const ignoredDirs = new Set(['node_modules', '.git', 'dist', 'target']);
 const textExt = new Set(['.ts', '.tsx', '.js', '.mjs', '.json', '.md', '.html', '.css', '.toml', '.yml', '.yaml']);
-const allowDocs = new Set(['SYSTEM_CONTRACT.md', 'AI_STUDIO_OPENING_PROMPT.md', 'AGENTS.md', 'README.md']);
+const allowDocs = new Set([
+  'SYSTEM_CONTRACT.md',
+  'AI_STUDIO_OPENING_PROMPT.md',
+  'AI_STUDIO_SUGGESTION_POLICY.md',
+  'AGENTS.md',
+  'README.md',
+  'docs/AI_STUDIO_BOUNDARY.md',
+]);
 const failures = [];
 
 async function walk(dir) {

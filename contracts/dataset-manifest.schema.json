@@ -2,14 +2,32 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Dataset Manifest",
   "type": "object",
-  "required": ["schema_version", "source_sha256", "record_count", "transformations", "outputs"],
+  "required": [
+    "schema_version", "source_name", "source_sha256", "source_bytes", "format",
+    "record_count", "transformations", "exact_duplicate_groups", "split_seed",
+    "split_counts", "leakage_findings"
+  ],
   "properties": {
     "schema_version": { "const": 1 },
+    "source_name": { "type": "string", "minLength": 1 },
     "source_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "source_bytes": { "type": "integer", "minimum": 0 },
+    "format": { "enum": ["txt", "jsonl", "json", "csv"] },
     "record_count": { "type": "integer", "minimum": 0 },
-    "transformations": { "type": "array", "items": { "type": "string" } },
+    "transformations": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "exact_duplicate_groups": { "type": "integer", "minimum": 0 },
     "split_seed": { "type": ["string", "null"] },
-    "outputs": { "type": "object", "additionalProperties": { "type": "string", "pattern": "^[a-f0-9]{64}$" } }
+    "split_counts": {
+      "type": "object",
+      "required": ["train", "validation", "test"],
+      "properties": {
+        "train": { "type": "integer", "minimum": 0 },
+        "validation": { "type": "integer", "minimum": 0 },
+        "test": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "leakage_findings": { "type": "integer", "minimum": 0 }
   },
   "additionalProperties": false
 }

@@ -1,12 +1,26 @@
 use serde::Serialize;
-use sha2::{Digest, Sha256};
-use std::{fs::File, io::Read, path::PathBuf};
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 struct EngineStatus {
     status: &'static str,
     repository: &'static str,
+    commit: Option<&'static str>,
+    executable_sha256: Option<&'static str>,
+    backend: Option<&'static str>,
     detail: &'static str,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct EngineCapabilities {
+    prepare: bool,
+    shard: bool,
+    training: bool,
+    evaluation: bool,
+    inference: bool,
+    probe: bool,
+    cancellation: bool,
 }
 
 #[tauri::command]
@@ -14,32 +28,30 @@ fn engine_status() -> EngineStatus {
     EngineStatus {
         status: "UNPINNED",
         repository: "Grar00t/Niyah.Engine",
-        detail: "No verified native engine artifact is pinned in this base scaffold.",
+        commit: None,
+        executable_sha256: None,
+        backend: None,
+        detail: "No verified native engine artifact is pinned in contracts/engine.lock.json.",
     }
 }
 
 #[tauri::command]
-fn sha256_file(path: String) -> Result<String, String> {
-    let path = PathBuf::from(path);
-    let canonical = path.canonicalize().map_err(|e| format!("canonicalize failed: {e}"))?;
-    if !canonical.is_file() {
-        return Err("path is not a regular file".into());
+fn engine_capabilities() -> EngineCapabilities {
+    EngineCapabilities {
+        prepare: false,
+        shard: false,
+        training: false,
+        evaluation: false,
+        inference: false,
+        probe: false,
+        cancellation: false,
     }
-    let mut file = File::open(&canonical).map_err(|e| format!("open failed: {e}"))?;
-    let mut hasher = Sha256::new();
-    let mut buffer = [0u8; 64 * 1024];
-    loop {
-        let n = file.read(&mut buffer).map_err(|e| format!("read failed: {e}"))?;
-        if n == 0 { break; }
-        hasher.update(&buffer[..n]);
-    }
-    Ok(hex::encode(hasher.finalize()))
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![engine_status, sha256_file])
+        .invoke_handler(tauri::generate_handler![engine_status, engine_capabilities])
         .run(tauri::generate_context!())
         .expect("error while running Niyah Studio");
 }

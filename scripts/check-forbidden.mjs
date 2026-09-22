@@ -1,7 +1,8 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { extname, join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = new URL('..', import.meta.url).pathname;
+const root = fileURLToPath(new URL('..', import.meta.url));
 const forbidden = [
   /(?:^|["'\/])firebase(?:["'\/]|$)/i,
   /@google\/generative-ai/i,

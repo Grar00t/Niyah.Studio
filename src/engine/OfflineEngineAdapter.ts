@@ -36,6 +36,8 @@ export class OfflineEngineAdapter implements EngineAdapter {
     return { prepare: false, shard: false, training: false, evaluation: false, inference: false, probe: false, cancellation: false };
   }
 
+  async getModels() { return []; }
+
   async prepareDataset(_request: PrepareDatasetRequest): Promise<NativeResult> { return unsupported(); }
   async shardDataset(_request: ShardDatasetRequest): Promise<NativeResult> { return unsupported(); }
   async trainNew(_request: TrainingNewRequest): Promise<NativeResult> { return unsupported(); }

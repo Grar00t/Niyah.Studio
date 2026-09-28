@@ -10,7 +10,7 @@ This repository intentionally does **not** contain a browser language model, sim
 
 Google AI Studio may be used to develop the repository, but the downloaded application must not require Gemini, Firebase, Google services, or any cloud credential to use its local core.
 
-## Current scaffold
+## Current scope
 
 ### Web-verifiable
 
@@ -31,15 +31,18 @@ Google AI Studio may be used to develop the repository, but the downloaded appli
 - Static guard against Firebase/Gemini/Google marketing/telemetry dependencies.
 - Static remote-runtime boundary guard.
 
-### Native scaffold only
+### Native Windows CPU inference
 
-- Tauri v2 shell.
-- Minimal typed `engine_status` / `engine_capabilities` commands.
-- No arbitrary shell access.
-- `contracts/engine.lock.json` starts unpinned.
+- Tauri v2 shell with typed `engine_status`, `engine_capabilities`, `engine_models`, and `engine_inference` commands.
+- `contracts/engine.lock.json` pins a local Windows x86_64 CPU build; startup verifies the executable SHA-256 and actual CLI contract.
+- `src-tauri/models.local.json` pins two existing V10 checkpoints and their tokenizer. The frontend selects a catalog ID; it cannot supply executable or checkpoint paths.
+- Inference uses structured process arguments, a 120-second timeout, bounded stdout/stderr capture, and artifact hash checks before and after execution.
+- Evidence export includes the exact request, model/runtime identities, both process streams, exit code, and a separate `NOT_EVALUATED` answer-quality status.
 - `contracts/engine-cli.snapshot.json` records a repository-source CLI contract snapshot from Niyah.Engine commit `1ac94f267b6bd12e450d6e1b2f4ad38abf24fb89`, including prompt prefix/suffix, finetune, warmup, and backend selection; this is not runtime proof.
 
-Native inference, training, evaluation, and probe execution are intentionally **not** claimed as implemented or verified yet.
+Only inference is connected. Training, evaluation, checkpoint, probe, and cancellation controls remain unavailable. A browser build stays `ENGINE_OFFLINE`; another machine without the exact local artifacts fails verification.
+
+The pinned models are experimental: STEP0200 repeats tokens, and the four-fixture SFT canary fails unseen/grounded prompts. `ONLINE` means the native runtime is available. A successful process is not an answer-quality pass or a conversational release.
 
 ### Local retrieval tool
 
@@ -47,7 +50,10 @@ Native inference, training, evaluation, and probe execution are intentionally **
 retrieval CLI and Windows PowerShell entry point. It indexes explicitly approved,
 hash-bound source manifests, uses cached multilingual E5 weights on CPU, and
 returns source excerpts with provenance. Runtime dependencies are pinned. This
-tool does not enable the native scaffold or present generated answers as verified.
+[`native_answer.py`](tools/rag/NATIVE_ANSWER.md) additionally passes validated
+excerpts to the pinned native CPU runtime with an exact native-tokenizer context
+budget. It remains a separate WSL CLI, not a Studio chat feature. It records failed
+or unestablished answer quality separately from successful retrieval/execution.
 
 ## Verify web scope
 
@@ -68,17 +74,24 @@ The development server is fixed to port `3000` for Google AI Studio Build compat
 5. Follow only suggestions that conform to `AI_STUDIO_SUGGESTION_POLICY.md`.
 6. If suggestions drift, use `AI_STUDIO_PROMPT_SEQUENCE.md`.
 
-## Native transition
+## Verify native scope
 
-After exporting locally, the next native gate is deliberately small:
+On Windows with the Rust/MSVC and Tauri prerequisites already installed:
 
-1. pin one exact Niyah.Engine revision and local artifact set in `contracts/engine.lock.json`;
-2. verify artifact SHA-256;
-3. inspect the exact CLI at that pinned revision;
-4. implement one typed Tauri/Rust operation, preferably `niyah run`;
-5. capture stdout, stderr, exit code, and artifact identity;
-6. run a real native smoke test;
-7. only then expand to training process management.
+```powershell
+npm ci --no-audit --no-fund
+npm run build
+cargo test --locked --manifest-path src-tauri/Cargo.toml --lib -- --test-threads=1
+cargo test --locked --manifest-path src-tauri/Cargo.toml --lib pinned_native_dispatch -- --ignored --nocapture
+cargo build --locked --manifest-path src-tauri/Cargo.toml --features custom-protocol --bin niyah-studio
+```
+
+The ordinary tests use explicitly labeled fixtures. The opt-in `pinned_native_dispatch`
+test requires the exact local artifacts and invokes real Engine subprocesses through
+the production Tauri handler with a mock IPC transport. It checks Arabic output on
+a learned greeting, deterministic replay, and the baseline's separately recorded
+execution result. It does not test the displayed native WebView or prove model
+generalization. `custom-protocol` embeds the built frontend in the desktop executable.
 
 ## GitHub bootstrap
 

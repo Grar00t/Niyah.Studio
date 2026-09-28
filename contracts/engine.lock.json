@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "repository": "Grar00t/Niyah.Engine",
-  "commit": null,
+  "commit": "1ac94f267b6bd12e450d6e1b2f4ad38abf24fb89",
   "release": null,
-  "platform": null,
+  "platform": "windows-x86_64-cpu-local",
   "artifacts": {
-    "niyah": { "path": null, "sha256": null },
-    "niyah-train": { "path": null, "sha256": null },
-    "niyah_probe": { "path": null, "sha256": null }
+    "niyah": { "path": "D:/Projects/Niyah.Engine/build/verify-windows-release/Release/niyah.exe", "sha256": "154a9704627d207c845d91274faa34fb4843439b3e61213f7619491eec141ab6" },
+    "niyah-train": { "path": "D:/Projects/Niyah.Engine/build/verify-windows-release/Release/niyah-train.exe", "sha256": "83684102dc83e88c7b93a361c0ba43e3447eab345cff3447eac19e5a2d946560" },
+    "niyah_probe": { "path": "D:/Projects/Niyah.Engine/build/verify-windows-release/Release/niyah_probe.exe", "sha256": "ac826db485360018e68443f087d4fdd1a6ac70f089caaeccd3ebbc618d2d9179" }
   }
 }

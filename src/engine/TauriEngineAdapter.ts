@@ -6,6 +6,7 @@ import type {
   EvaluationRequest,
   InferenceRequest,
   NativeResult,
+  NativeModel,
   PrepareDatasetRequest,
   ProbeRequest,
   ShardDatasetRequest,
@@ -13,7 +14,7 @@ import type {
   TrainingResumeRequest,
 } from './EngineAdapter';
 
-const NOT_WIRED = 'UNSUPPORTED: native operation is intentionally not wired in the scaffold. Pin and inspect Niyah.Engine before implementing it.';
+const NOT_WIRED = 'UNSUPPORTED: this native operation is not connected. Only verified CPU inference is currently implemented.';
 const unsupported = (): NativeResult => ({ status: 'UNSUPPORTED', stdout: '', stderr: NOT_WIRED, exitCode: null });
 
 export class TauriEngineAdapter implements EngineAdapter {
@@ -27,12 +28,23 @@ export class TauriEngineAdapter implements EngineAdapter {
     return invoke<EngineCapabilities>('engine_capabilities');
   }
 
+  async getModels(): Promise<NativeModel[]> {
+    return invoke<NativeModel[]>('engine_models');
+  }
+
   async prepareDataset(_request: PrepareDatasetRequest): Promise<NativeResult> { return unsupported(); }
   async shardDataset(_request: ShardDatasetRequest): Promise<NativeResult> { return unsupported(); }
   async trainNew(_request: TrainingNewRequest): Promise<NativeResult> { return unsupported(); }
   async trainResume(_request: TrainingResumeRequest): Promise<NativeResult> { return unsupported(); }
   async evaluate(_request: EvaluationRequest): Promise<NativeResult> { return unsupported(); }
-  async runInference(_request: InferenceRequest): Promise<NativeResult> { return unsupported(); }
+  async runInference(request: InferenceRequest): Promise<NativeResult> {
+    try {
+      return await invoke<NativeResult>('engine_inference', { request });
+    } catch (error: unknown) {
+      return { status: 'FAIL', executionStatus: 'FAILED', qualityStatus: 'NOT_EVALUATED',
+        stdout: '', stderr: error instanceof Error ? error.message : String(error), exitCode: null };
+    }
+  }
   async probe(_request: ProbeRequest): Promise<NativeResult> { return unsupported(); }
   async cancelActiveRun(): Promise<NativeResult> { return unsupported(); }
 }

@@ -83,6 +83,17 @@ button { color: inherit; }
 .native-contract-panel button { margin-top: 10px; width: 100%; }
 .native-contract-panel button:disabled { opacity: .45; cursor: not-allowed; }
 
+.inference-controls { display: flex; align-items: end; gap: 12px; flex-wrap: wrap; }
+.inference-controls label { display: grid; gap: 5px; color: var(--muted); font-size: 11px; }
+.inference-controls select, .inference-controls input, .inference-controls button { padding: 8px; border: 1px solid var(--line); border-radius: 7px; background: #15131b; color: var(--text); }
+.inference-controls input { width: 76px; }
+.model-scope { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.message-content { min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.message-content small { display: block; color: var(--muted); margin-bottom: 8px; }
+.message-content details { margin-top: 8px; color: var(--muted); font-size: 12px; }
+.message-content pre { white-space: pre-wrap; }
+.composer button:disabled { opacity: .4; cursor: not-allowed; }
+
 .graph-toolbar { position: absolute; z-index: 2; left: 12px; top: 12px; right: 12px; display: grid; grid-template-columns: minmax(180px,1fr) auto auto; gap: 8px; align-items: center; }
 .graph-toolbar input { min-height: 34px; border: 1px solid #342e3e; border-radius: 7px; background: rgba(14,12,18,.92); color: var(--text); padding: 0 10px; outline: none; backdrop-filter: blur(10px); }
 .graph-toolbar span { color: #7f778a; font-size: 10px; text-align: right; }

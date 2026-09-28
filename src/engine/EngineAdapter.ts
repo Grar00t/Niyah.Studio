@@ -22,12 +22,17 @@ export interface EngineCapabilities {
 
 export interface InferenceRequest {
   prompt: string;
-  checkpointPath: string;
-  tokenizerPath: string;
+  modelId: string;
   maxNewTokens: number;
   temperature: number;
   seed: number;
   backend: EngineBackend;
+}
+
+export interface NativeModel {
+  id: string;
+  label: string;
+  scope: string;
 }
 
 export interface PrepareDatasetRequest {
@@ -110,12 +115,25 @@ export interface NativeResult {
   stdout: string;
   stderr: string;
   exitCode: number | null;
+  executionStatus?: 'SUCCEEDED' | 'FAILED' | 'TIMED_OUT' | 'REJECTED' | 'BUSY';
+  qualityStatus?: 'NOT_EVALUATED';
+  durationMs?: number;
+  identity?: {
+    repository: string;
+    commit: string;
+    executableSha256: string;
+    modelId: string;
+    checkpointSha256: string;
+    tokenizerSha256: string;
+    backend: 'cpu';
+  } | null;
 }
 
 export interface EngineAdapter {
   readonly kind: 'offline' | 'tauri';
   getIdentity(): Promise<EngineIdentity>;
   getCapabilities(): Promise<EngineCapabilities>;
+  getModels(): Promise<NativeModel[]>;
   prepareDataset(request: PrepareDatasetRequest): Promise<NativeResult>;
   shardDataset(request: ShardDatasetRequest): Promise<NativeResult>;
   trainNew(request: TrainingNewRequest): Promise<NativeResult>;

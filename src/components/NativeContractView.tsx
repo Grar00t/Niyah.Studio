@@ -59,9 +59,9 @@ export function NativeContractView({ surface, engine }: { surface: NativeSurface
         <ul>{contract.evidence.map((item) => <li key={item}>{item}</li>)}</ul>
         <div className={`engine-gate ${online ? 'online' : 'offline'}`}>
           <CircleDot size={14} />
-          {online ? 'Native adapter reports ONLINE. Execution still requires mapped capability.' : `${engine.status}: native execution disabled in this environment.`}
+          {online ? `Runtime is available. ${contract.title} is not connected in this view.` : `${engine.status}: native execution disabled in this environment.`}
         </div>
-        <button disabled={!online}>Run native operation</button>
+        <button disabled>Operation not connected</button>
       </section>
     </div>
   );

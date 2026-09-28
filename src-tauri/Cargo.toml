@@ -9,9 +9,25 @@ edition = "2021"
 name = "niyah_studio_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
+[features]
+custom-protocol = ["tauri/custom-protocol"]
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+
+[dev-dependencies]
+tauri = { version = "2", features = ["test"] }
+
+# Identity checks stream hundreds of MB before and after inference. Keep those
+# checks practical in the runnable debug build without weakening verification.
+[profile.dev.package.niyah-studio]
+opt-level = 1
+
+[profile.dev.package.sha2]
+opt-level = 3

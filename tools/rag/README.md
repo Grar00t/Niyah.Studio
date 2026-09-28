@@ -68,3 +68,11 @@ uniquely named test schema, uses visibly labeled synthetic fixtures, and removes
 only that schema on exit. It checks Arabic retrieval, deterministic replay,
 idempotence, source mutation, database chunk tampering, model mismatch, no context,
 and transaction rollback after a controlled embedding failure.
+
+## Native model candidate output
+
+The separate [native_answer.py path](NATIVE_ANSWER.md) can pass bounded, source-gated
+excerpts to pinned native Niyah CPU inference. It records exact native token counts,
+artifact identities and process evidence. Execution success is separate from model
+quality; poor or repetitive output is retained and explicitly reported. The
+retrieval-only commands above keep their existing behavior.

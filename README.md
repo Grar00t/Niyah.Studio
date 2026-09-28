@@ -37,9 +37,17 @@ Google AI Studio may be used to develop the repository, but the downloaded appli
 - Minimal typed `engine_status` / `engine_capabilities` commands.
 - No arbitrary shell access.
 - `contracts/engine.lock.json` starts unpinned.
-- `contracts/engine-cli.snapshot.json` records a repository-source CLI contract snapshot from Niyah.Engine commit `b80050086d6c8476650cda0d4529c3fd0dd5b8c1`; this is not runtime proof.
+- `contracts/engine-cli.snapshot.json` records a repository-source CLI contract snapshot from Niyah.Engine commit `1ac94f267b6bd12e450d6e1b2f4ad38abf24fb89`, including prompt prefix/suffix, finetune, warmup, and backend selection; this is not runtime proof.
 
 Native inference, training, evaluation, and probe execution are intentionally **not** claimed as implemented or verified yet.
+
+### Local retrieval tool
+
+[`tools/rag`](tools/rag/README.md) provides a separate, tested WSL/PostgreSQL
+retrieval CLI and Windows PowerShell entry point. It indexes explicitly approved,
+hash-bound source manifests, uses cached multilingual E5 weights on CPU, and
+returns source excerpts with provenance. Runtime dependencies are pinned. This
+tool does not enable the native scaffold or present generated answers as verified.
 
 ## Verify web scope
 

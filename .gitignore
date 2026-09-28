@@ -13,6 +13,9 @@ src-tauri/gen/
 *.swp
 *.tmp
 *.bak
+__pycache__/
+*.pyc
+.venv/
 
 # Local datasets / model artifacts must never be committed by default.
 workspace/

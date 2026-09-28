@@ -27,8 +27,13 @@ async function walk(dir) {
     if (!textExt.has(extname(entry.name))) continue;
     const text = await readFile(path, 'utf8');
     const rel = relative(root, path).replaceAll('\\', '/');
+    // Tauri's mock IPC transport names a local WebView origin; it does not make
+    // an HTTP request. Exempt only that exact request field in the Rust fixture.
+    const checked = rel === 'src-tauri/src/lib.rs'
+      ? text.replace(/^\s*url: "http:\/\/tauri\.localhost"\.parse\(\)\.unwrap\(\),\s*$/gm, '')
+      : text;
     for (const pattern of forbiddenRuntimePatterns) {
-      if (pattern.test(text)) failures.push(`${rel}: ${pattern}`);
+      if (pattern.test(checked)) failures.push(`${rel}: ${pattern}`);
     }
   }
 }

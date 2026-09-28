@@ -1,0 +1,32 @@
+[
+  {
+    "id": "v10-step0200",
+    "label": "V10 STEP0200 — baseline (known repetition)",
+    "scope": "Base-pretraining checkpoint; deterministic greedy repetition is a known failed behavioral gate. Execution success does not establish model quality.",
+    "checkpoint": {
+      "path": "D:/training-data/v10-31m-step0200-20260928/model-0200.ckpt",
+      "sha256": "112d5e380d1cbd1bbcfcfffb839d07efa8d5658b91145eaa8c02095cc42a0e8f"
+    },
+    "tokenizer": {
+      "path": "D:/training-data/v10-clean-20260927/tokenizer-final/tok.bin",
+      "sha256": "d47a69a1ec180f577aeebe3905d6aed22d4b8ea3408b66fe4b8571fccc2fa841"
+    },
+    "prompt_prefix": "",
+    "prompt_suffix": ""
+  },
+  {
+    "id": "v10-sft-canary",
+    "label": "V10 calibrated SFT — four-fixture canary",
+    "scope": "Response-masked four-fixture learning canary. Known failures on unseen prompts and raw formatting; not a conversational release. Applies the trained سؤال/جواب format.",
+    "checkpoint": {
+      "path": "D:/training-data/niyah-execution-20260928/sft-canary/calibrated-0040.ckpt",
+      "sha256": "10729970e6a3e25ca569e90629178d9abaa9c82c5fba97066a603b2dfed0fc7a"
+    },
+    "tokenizer": {
+      "path": "D:/training-data/v10-clean-20260927/tokenizer-final/tok.bin",
+      "sha256": "d47a69a1ec180f577aeebe3905d6aed22d4b8ea3408b66fe4b8571fccc2fa841"
+    },
+    "prompt_prefix": "سؤال: ",
+    "prompt_suffix": "\nجواب: "
+  }
+]

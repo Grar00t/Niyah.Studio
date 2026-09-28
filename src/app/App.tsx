@@ -32,8 +32,9 @@ import {
   type SplitAssignment,
 } from '../datasets/core';
 import { getEngineAdapter } from '../engine/adapter';
-import type { EngineIdentity } from '../engine/EngineAdapter';
+import type { EngineCapabilities, EngineIdentity, InferenceRequest, NativeModel } from '../engine/EngineAdapter';
 import { makeReceipt, type EvidenceReceipt } from '../evidence/types';
+import { makeInferenceReceipt } from '../evidence/inference';
 import { buildEvidenceGraph } from '../graph/model';
 import { EvidenceGraph } from '../components/EvidenceGraph';
 import { NativeContractView, type NativeSurface } from '../components/NativeContractView';
@@ -53,6 +54,7 @@ type ViewId = (typeof nav)[number][0];
 
 const fixture = `User: What is 2+2?\nAssistant: 4\n\nUser: What is the capital of Saudi Arabia?\nAssistant: Riyadh\n\nUser: What is 2+2?\nAssistant: 4\n\nمرحبا بالعالم\n\nshort`;
 const DEFAULT_SPLIT_SEED = 'niyah-studio-seed-1';
+const NO_CAPABILITIES: EngineCapabilities = { prepare: false, shard: false, training: false, evaluation: false, inference: false, probe: false, cancellation: false };
 
 export function App() {
   const [view, setView] = useState<ViewId>('chat');
@@ -71,12 +73,33 @@ export function App() {
   const [nearDuplicates, setNearDuplicates] = useState<NearDuplicateFinding[] | null>(null);
   const [receipts, setReceipts] = useState<EvidenceReceipt[]>([]);
   const [prompt, setPrompt] = useState('');
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'system'; text: string }>>([
-    { role: 'system', text: 'Native Niyah.Engine is offline in web preview. Dataset and evidence tooling remain available locally.' },
-  ]);
+  const [capabilities, setCapabilities] = useState<EngineCapabilities>(NO_CAPABILITIES);
+  const [models, setModels] = useState<NativeModel[]>([]);
+  const [modelId, setModelId] = useState('');
+  const [maxNewTokens, setMaxNewTokens] = useState(32);
+  const [running, setRunning] = useState(false);
+  const [messages, setMessages] = useState<Array<{ role: 'user' | 'system' | 'native'; text: string; stderr?: string; execution?: string }>>([]);
+  const inferenceReady = engine.status === 'ONLINE' && capabilities.inference && models.some((model) => model.id === modelId);
 
   useEffect(() => {
-    void getEngineAdapter().getIdentity().then(setEngine).catch((error: unknown) => {
+    void refreshEngine();
+  }, []);
+
+  async function refreshEngine() {
+    setCapabilities(NO_CAPABILITIES);
+    try {
+      const adapter = getEngineAdapter();
+      const identity = await adapter.getIdentity();
+      const [available, verifiedModels] = identity.status === 'ONLINE'
+        ? await Promise.all([adapter.getCapabilities(), adapter.getModels()])
+        : [NO_CAPABILITIES, [] as NativeModel[]];
+      setEngine(identity);
+      setCapabilities(available);
+      setModels(verifiedModels);
+      setModelId((current) => verifiedModels.some((model) => model.id === current) ? current
+        : verifiedModels.find((model) => model.id === 'v10-sft-canary')?.id ?? verifiedModels[0]?.id ?? '');
+    } catch (error: unknown) {
+      setModels([]);
       setEngine({
         status: 'ERROR',
         repository: 'Grar00t/Niyah.Engine',
@@ -85,8 +108,8 @@ export function App() {
         backend: null,
         detail: error instanceof Error ? error.message : String(error),
       });
-    });
-  }, []);
+    }
+  }
 
   async function loadBytes(name: string, bytes: Uint8Array, source: 'TEST_FIXTURE' | 'USER_ACTION') {
     try {
@@ -160,21 +183,24 @@ export function App() {
 
   async function sendMessage() {
     const value = prompt.trim();
-    if (!value) return;
+    if (!value || !inferenceReady || running || !Number.isInteger(maxNewTokens) || maxNewTokens < 1 || maxNewTokens > 64) return;
+    const startedAt = new Date().toISOString();
+    const request: InferenceRequest = { prompt: value, modelId, maxNewTokens, temperature: 0, seed: 42, backend: 'cpu' };
+    setRunning(true);
     setPrompt('');
     setMessages((previous) => [...previous, { role: 'user', text: value }]);
-    const result = await getEngineAdapter().runInference({
-      prompt: value,
-      checkpointPath: '',
-      tokenizerPath: '',
-      maxNewTokens: 128,
-      temperature: 0,
-      seed: 42,
-      backend: 'cpu',
-    });
-    const status = result.status === 'FAIL' ? 'FAIL' : result.status === 'ABORTED' ? 'ABORTED' : result.status === 'PASS' ? 'PASS' : 'UNSUPPORTED';
-    setReceipts((previous) => [...previous, makeReceipt('engine.inference', status, 'NATIVE_PROCESS', result.stderr || result.stdout)]);
-    setMessages((previous) => [...previous, { role: 'system', text: result.stderr || result.stdout || 'ENGINE_OFFLINE' }]);
+    try {
+      const result = await getEngineAdapter().runInference(request);
+      setReceipts((previous) => [...previous, makeInferenceReceipt(result, startedAt, request)]);
+      setMessages((previous) => [...previous, { role: 'native', text: result.stdout || 'No native output.',
+        stderr: result.stderr, execution: `${result.executionStatus ?? result.status} · Answer quality: ${result.qualityStatus ?? 'NOT_EVALUATED'}` }]);
+    } catch (error: unknown) {
+      const detail = error instanceof Error ? error.message : String(error);
+      setMessages((previous) => [...previous, { role: 'system', text: detail }]);
+      setReceipts((previous) => [...previous, makeInferenceReceipt({ status: 'FAIL', stdout: '', stderr: detail, exitCode: null }, startedAt, request)]);
+    } finally {
+      setRunning(false);
+    }
   }
 
   const leakage = dataset ? findCrossSplitLeakage(dataset, assignments) : [];
@@ -188,16 +214,16 @@ export function App() {
           <div className="brand-mark"><BrainCircuit size={19} /></div>
           <div><strong>Niyah Studio</strong><small>LOCAL WORKSTATION</small></div>
         </div>
-        <button className="new-chat" onClick={() => setView('chat')}><Plus size={16} /> <span>New chat</span></button>
+        <button className="new-chat" aria-label="New chat" onClick={() => setView('chat')}><Plus size={16} /> <span>New chat</span></button>
         <nav>
           {nav.map(([id, Icon, label]) => (
-            <button key={id} className={view === id ? 'active' : ''} onClick={() => setView(id)}>
+            <button key={id} aria-label={label} className={view === id ? 'active' : ''} onClick={() => setView(id)}>
               <Icon size={16} /><span>{label}</span>{id === 'graph' && <i className="purple-dot" />}
             </button>
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <button><Settings2 size={16} /> <span>Settings</span></button>
+          <button aria-label="Settings"><Settings2 size={16} /> <span>Settings</span></button>
           <div className="local-badge"><HardDrive size={14} /> No cloud runtime</div>
         </div>
       </aside>
@@ -223,6 +249,8 @@ export function App() {
         <InspectorRow label="Commit" value={engine.commit ?? 'UNPINNED'} warn={!engine.commit} mono />
         <InspectorRow label="Executable SHA" value={engine.executableSha256 ?? 'UNKNOWN'} warn={!engine.executableSha256} mono />
         <InspectorRow label="Backend" value={engine.backend ?? 'N/A'} />
+        <InspectorRow label="Native inference" value={inferenceReady ? 'AVAILABLE' : 'UNAVAILABLE'} warn={!inferenceReady} />
+        <InspectorRow label="Answer quality" value="NOT EVALUATED" warn />
         <div className="separator" />
         <InspectorRow label="Dataset" value={dataset?.sourceName ?? 'NONE'} />
         <InspectorRow label="Format" value={dataset?.format.toUpperCase() ?? 'N/A'} />
@@ -237,18 +265,32 @@ export function App() {
     if (view === 'chat') {
       return (
         <div className="chat-view">
-          <div className="chat-heading"><h1>Niyah</h1><p>Conversation surface for the real native engine. Web preview fails closed.</p></div>
+          <div className="chat-heading"><h1>Niyah</h1><p>Local native inference. Available models are experimental; successful execution does not establish answer quality.</p></div>
+          <div className="inference-controls">
+            <label>Verified model<select aria-label="Verified model" value={modelId} disabled={!models.length || running} onChange={(event) => setModelId(event.target.value)}>
+              {!models.length && <option value="">No verified native model</option>}
+              {models.map((model) => <option key={model.id} value={model.id}>{model.label}</option>)}
+            </select></label>
+            <label>Output tokens<input aria-label="Output tokens" type="number" min={1} max={64} value={maxNewTokens} disabled={running} onChange={(event) => setMaxNewTokens(Number(event.target.value))} /></label>
+            <button onClick={() => void refreshEngine()} disabled={running}>Refresh runtime</button>
+          </div>
+          <p className="model-scope">{models.find((model) => model.id === modelId)?.scope ?? engine.detail}</p>
           <div className="messages">
             {messages.map((message, index) => (
               <div key={`${message.role}:${index}`} className={`message ${message.role}`}>
                 <div className="avatar">{message.role === 'user' ? 'U' : <Bot size={16} />}</div>
-                <div>{message.text}</div>
+                <div className="message-content">
+                  {message.execution && <small>{message.execution}</small>}
+                  <div dir="auto">{message.text}</div>
+                  {message.stderr && <details><summary>Native diagnostics</summary><pre>{message.stderr}</pre></details>}
+                </div>
               </div>
             ))}
           </div>
           <div className="composer">
             <textarea
               value={prompt}
+              disabled={!inferenceReady || running}
               onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setPrompt(event.target.value)}
               placeholder="Message Niyah…"
               onKeyDown={(event: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -258,7 +300,7 @@ export function App() {
                 }
               }}
             />
-            <div className="composer-row"><span>Native output only</span><button onClick={() => void sendMessage()} aria-label="Send"><Send size={16} /></button></div>
+            <div className="composer-row"><span>{running ? 'Running native inference…' : inferenceReady ? 'Verified CPU runtime · deterministic decoding' : engine.status}</span><button disabled={!inferenceReady || running || !prompt.trim() || !Number.isInteger(maxNewTokens) || maxNewTokens < 1 || maxNewTokens > 64} onClick={() => void sendMessage()} aria-label="Send"><Send size={16} /></button></div>
           </div>
         </div>
       );

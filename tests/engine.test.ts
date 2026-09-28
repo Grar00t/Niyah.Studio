@@ -6,8 +6,7 @@ describe('offline engine adapter', () => {
     const adapter = new OfflineEngineAdapter();
     const result = await adapter.runInference({
       prompt: 'hello',
-      checkpointPath: '',
-      tokenizerPath: '',
+      modelId: 'v10-step0200',
       maxNewTokens: 32,
       temperature: 0,
       seed: 42,
@@ -21,5 +20,6 @@ describe('offline engine adapter', () => {
   it('exposes no native capabilities', async () => {
     const capabilities = await new OfflineEngineAdapter().getCapabilities();
     expect(Object.values(capabilities).every((value) => value === false)).toBe(true);
+    expect(await new OfflineEngineAdapter().getModels()).toEqual([]);
   });
 });
